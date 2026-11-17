@@ -1,4 +1,4 @@
-# slime-mascot
+# Mascotacvm
 
 Mascota animada (babosa azul con lentes) como Web Component `<slime-mascot>`, sin dependencias.
 
