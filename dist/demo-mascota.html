@@ -198,6 +198,7 @@ button.main{background:#2f8fe8;border-color:#2f8fe8;color:#fff;font-weight:700;b
   /* controles: pausar y ocultar (aparecen al pasar el cursor, tocar o enfocar con teclado) */
   .ctl{position:absolute;left:0;bottom:0;display:flex;gap:.3em;opacity:0;pointer-events:none;transition:opacity .2s ease;z-index:4}
   .ctl-on .ctl,.ctl:focus-within{opacity:1;pointer-events:auto}
+  :host(.dragging) .ctl{opacity:0;pointer-events:none;transition:none}   /* mientras la arrastran no se muestran pausar/cerrar */
   .ctl button,.chip{width:1.9em;height:1.9em;min-width:28px;min-height:28px;border-radius:50%;border:1px solid #c3d4ea;background:#fff;color:#33415c;display:grid;place-items:center;padding:0;cursor:pointer;box-shadow:0 2px 8px rgba(27,42,77,.16);font:inherit}
   .ctl button:focus-visible,.chip:focus-visible,.bubble button:focus-visible{outline:3px solid var(--mascot-accent,#2f8fe8);outline-offset:2px}
   .ctl svg,.chip svg{position:static;width:54%;height:54%}
@@ -962,7 +963,7 @@ button.main{background:#2f8fe8;border-color:#2f8fe8;color:#fff;font-weight:700;b
       $('.c-hide')[0].addEventListener('click', () => this.hide());
       $('.chip')[0].addEventListener('click', () => this.show());
       [this._ctl, $('.chip')[0]].forEach((el) => ['pointerdown', 'pointerup', 'click'].forEach((n) => el.addEventListener(n, (ev) => ev.stopPropagation())));
-      const ctlOn = () => { clearTimeout(this._ctlT); if (!this.hasAttribute('no-controls')) this._el.classList.add('ctl-on'); };
+      const ctlOn = () => { clearTimeout(this._ctlT); if (this._dragging || this._busy === 'drag') return; if (!this.hasAttribute('no-controls')) this._el.classList.add('ctl-on'); };
       const ctlOff = () => { clearTimeout(this._ctlT); this._ctlT = setTimeout(() => this._el.classList.remove('ctl-on'), 1800); };
       [this._hit, this._ctl].forEach((el) => { el.addEventListener('pointerenter', ctlOn); el.addEventListener('pointerleave', ctlOff); });
       this._syncMotion();
@@ -1493,7 +1494,7 @@ button.main{background:#2f8fe8;border-color:#2f8fe8;color:#fff;font-weight:700;b
     }
 
     _startDrag() {
-      this._dragging = true; this.classList.add('dragging');
+      this._dragging = true; this.classList.add('dragging'); clearTimeout(this._ctlT); this._el.classList.remove('ctl-on');
       this._armSleep();
       /* punto exacto por donde la agarran: de ahí cuelga */
       const b = this._el.getBoundingClientRect(), pr_ = this._press, OX = 48.61;
