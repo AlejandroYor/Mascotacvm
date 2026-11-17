@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Demo mascota SaaS</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:flex;flex-direction:column;align-items:center;gap:16px;
+background:#fff;color:#1b2a4d;font-family:system-ui,sans-serif;text-align:center;padding:20px 16px 40px}
+h1{font-size:13px;letter-spacing:.08em;text-transform:uppercase;opacity:.6;margin:6px 0 0;font-weight:600}
+.tabs{display:flex;gap:6px;background:#eef4fc;padding:5px;border-radius:999px}
+.tabs button{border:0;background:transparent;padding:9px 14px;border-radius:999px}
+.tabs button.on{background:#2f8fe8;color:#fff;font-weight:700}
+.area{width:100%;max-width:560px;height:330px;border:1px dashed #c3d4ea;border-radius:18px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:14px;position:relative}
+.hint{position:absolute;top:10px;left:0;right:0;font-size:12.5px;opacity:.6;padding:0 12px}
+button{background:#eef4fc;color:#1b2a4d;border:1px solid #c3d4ea;border-radius:999px;padding:10px 15px;font-size:15px;cursor:pointer}
+.row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:560px}
+.card{width:100%;max-width:340px;background:#f6f9fd;border:1px solid #d5e2f3;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px;text-align:left}
+label{font-size:13px;opacity:.75}
+input{width:100%;padding:11px 12px;border-radius:10px;border:1px solid #c3d4ea;background:#fff;color:#1b2a4d;font-size:16px}
+button.main{background:#2f8fe8;border-color:#2f8fe8;color:#fff;font-weight:700;border-radius:10px;padding:12px}
+#msg{font-size:13px;min-height:18px;opacity:.85;text-align:center}
+</style></head><body>
+<div class="tabs" id="tabs">
+  <button class="on" data-v="">General</button>
+  <button data-v="sheet">Hoja de cálculo</button>
+  <button data-v="bag">Cartera</button>
+</div>
+<div class="area">
+  <div class="hint">Arrástrala, mueve el cursor a su alrededor o tócala para que salude.</div>
+  <slime-mascot id="m" size="230" intro shy></slime-mascot>
+</div>
+
+<h1>Poses dibujadas: giros y movimiento</h1>
+<div class="row">
+  <button data-mascot="spin">Giro 360°</button>
+  <button data-mascot="jump">Salto grande</button>
+  <button data-mascot="front">De frente</button>
+  <button data-mascot="away">De espaldas</button>
+  <button data-mascot="crawl">A rastras</button>
+  <button data-mascot="nap">Siesta</button>
+  <button data-mascot="sit">Sentada</button>
+  <button data-mascot="lean">Se asoma</button>
+  <button onclick="m.stop()">Detener</button>
+  <button onclick="m.resetPosition()">Volver a su lugar</button>
+</div>
+<h1>Poses dibujadas: emociones</h1>
+<div class="row">
+  <button data-mascot="excited">Emocionada</button>
+  <button data-mascot="wink">Guiño</button>
+  <button data-mascot="gasp">Sorpresa</button>
+  <button data-mascot="sad">Triste</button>
+  <button data-mascot="ponder">Pensativa</button>
+  <button onclick="m.stop()">Detener</button>
+</div>
+
+<h1>Trajes</h1>
+<div class="row" id="trajes">
+  <button data-c="">Sin traje</button><button data-c="navidad">Navidad</button><button data-c="anionuevo">Año Nuevo</button>
+  <button data-c="halloween">Halloween</button><button data-c="semanasanta">Semana Santa</button><button data-c="independencia">Independencia</button>
+  <button data-c="todossantos">Todos los Santos</button><button data-c="quemadiablo">Quema del Diablo</button><button data-c="acciondegracias">Acción de Gracias</button><button data-c="carino">Día del Cariño</button><button data-c="madre">Día de la Madre</button>
+  <button data-c="padre">Día del Padre</button><button data-c="nino">Día del Niño</button><button data-c="mujer">Día de la Mujer</button>
+  <button data-c="hombre">Día del Hombre</button><button data-c="ejercito">Día del Ejército</button>
+  <button data-c="auto">Según la fecha</button>
+</div>
+<h1>Control y estado</h1>
+<div class="row">
+  <button onclick="m.state='loading';setTimeout(()=>m.state='success',2500)">Estado: cargando → éxito</button>
+  <button onclick="m.paused?m.resume():m.pause()">Pausar / reanudar</button>
+  <button onclick="m.dismissed?m.show():m.hide()">Ocultar / mostrar</button>
+</div>
+<h1>Tutorial guiado</h1>
+<div class="row">
+  <button class="main" id="tourBtn" style="border-radius:999px">▶ Iniciar tutorial</button>
+  <button data-mascot="tip">Tip</button>
+  <button onclick="m.pointAt('#bBuscar')">Señalar “Buscar”</button>
+  <button onclick="m.say('¡Hola! Soy tu guía de cartera.',{ms:2600})">Hablar</button>
+  <button onclick="m.stop()">Detener</button>
+</div>
+<h1>Acciones del usuario</h1>
+<div class="row">
+  <button data-mascot="search" id="bBuscar">Buscar</button>
+  <button data-mascot="save" id="bGuardar">Guardar</button>
+  <button data-mascot="export" id="bExportar">Exportar</button>
+  <button data-mascot="approve" id="bAprobar">Enviar a aprobación</button>
+  <button data-mascot="archive">Archivar</button>
+</div>
+<h1>Estados del sistema</h1>
+<div class="row">
+  <button data-mascot="empty">Lista vacía</button>
+  <button data-mascot="locked">Sin permiso</button>
+  <button data-mascot="offline">Sin conexión</button>
+  <button data-mascot="expiring">Sesión por expirar</button>
+</div>
+<h1>Con objeto (hoja / mochila)</h1>
+<div class="row">
+  <button data-mascot="download">Descargar</button>
+  <button data-mascot="upload">Subir</button>
+  <button data-mascot="waiting">Esperando</button>
+  <button data-mascot="angry">Enojado</button>
+  <button data-mascot="happy">Feliz</button>
+  <button data-mascot="roam">Pasear</button>
+  <button onclick="m.stop()">Detener</button>
+  <button onclick="m.resetPosition()">Volver a su lugar</button>
+</div>
+<h1>Generales</h1>
+<div class="row">
+  <button data-mascot="greet">Saludo</button>
+  <button data-mascot="success">Éxito</button>
+  <button data-mascot="shake">Error</button>
+  <button data-mascot="nod">Sí</button>
+  <button data-mascot="notify">Aviso</button>
+  <button data-mascot="curious">Curiosa</button>
+  <button data-mascot="smile">Sonrisa</button>
+  <button data-mascot="think">Pensando</button>
+  <button data-mascot="sleep">Dormir</button>
+  <button data-mascot="exit">Salir</button>
+  <button data-mascot="enter">Entrar</button>
+</div>
+
+<h1>Ejemplo: formulario</h1>
+<form class="card" id="f">
+  <label for="e">Correo</label><input id="e" type="email" placeholder="tu@empresa.com" autocomplete="off">
+  <label for="p">Contraseña (escribe "mal" para ver el error; la mascota se voltea para no mirar)</label><input id="p" type="password" placeholder="••••••••">
+  <button class="main" type="submit">Entrar</button>
+  <div id="msg"></div>
+</form>
+<script>
+__JS__
+</script>
+<script>
+__TRAJES__
+</script>
+<script>
+__POSES__
+</script>
+<script>
+const m=document.getElementById('m'),msg=document.getElementById('msg');
+document.getElementById('tabs').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  [...b.parentNode.children].forEach(x=>x.classList.toggle('on',x===b));
+  b.dataset.v ? m.setAttribute('variant',b.dataset.v) : m.removeAttribute('variant');
+  m.play('nod');
+});
+document.getElementById('trajes').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;b.dataset.c?m.setAttribute('costume',b.dataset.c):m.removeAttribute('costume');m.play('smile');});
+document.getElementById('tourBtn').addEventListener('click',()=>m.tour([
+  {target:'#tabs',text:'Aquí cambias entre las vistas de tu cartera.'},
+  {target:'#bBuscar',text:'Con Buscar encuentras un cliente por nombre o NIT.'},
+  {target:'#bExportar',text:'Exporta la cartera filtrada a una hoja de cálculo.'},
+  {target:'#bAprobar',text:'Y cuando un cambio esté listo, envíalo a aprobación.'},
+]));
+document.getElementById('f').addEventListener('submit',async e=>{
+  e.preventDefault(); document.activeElement.blur();
+  msg.textContent='Verificando…'; m.play('think');
+  await new Promise(r=>setTimeout(r,2600));
+  const ok=document.getElementById('p').value!=='mal';
+  msg.textContent=ok?'¡Bienvenido!':'Contraseña incorrecta';
+  m.play(ok?'success':'shake');
+});
+</script>
+</body></html>
